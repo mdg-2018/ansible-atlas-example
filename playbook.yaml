@@ -1,0 +1,55 @@
+- name: Atlas search demo setup
+  hosts: 127.0.0.1
+  connection: local
+  vars:
+    atlas_pub_key: ""
+    atlas_private_key: ""
+    project_id: ""
+    cluster_info: "{{ lookup('ansible.builtin.file','cluster.json') }}"
+    cluster_username: ""
+    cluster_password: ""
+  tasks:
+    - name: Deploy Atlas Cluster
+      uri:
+        url: "https://cloud.mongodb.com/api/atlas/v1.0/groups/{{ project_id }}/clusters"
+        user: "{{ atlas_pub_key }}"
+        password: "{{ atlas_private_key }}"
+        method: POST
+        body: "{{ lookup('ansible.builtin.file','cluster.json') }}"
+        status_code: 201
+        body_format: json
+    - name: Wait for Atlas Cluster to be ready
+      uri:
+        url: "https://cloud.mongodb.com/api/atlas/v1.0/groups/{{ project_id }}/clusters/{{ cluster_info.name }}"
+        user: "{{ atlas_pub_key }}"
+        password: "{{ atlas_private_key }}"
+        method: GET
+        status_code: 200
+        body_format: json
+      register: _cluster_data
+      until: _cluster_data.json.stateName == "IDLE"
+      retries: 200
+      delay: 10
+    - name: print response
+      debug:
+        msg: "{{ _cluster_data.json }}"
+    - name: Load sample dataset
+      shell: "mongorestore --uri {{ _cluster_data.json.srvAddress }} -u {{ cluster_username }} -p {{ cluster_password }} --nsInclude=forum_db.* ./data/dump/"
+    - name: Create search index on posts collection
+      uri:
+        url: "https://cloud.mongodb.com/api/atlas/v1.0/groups/{{ project_id }}/clusters/{{ cluster_info.name }}/fts/indexes"
+        user: "{{ atlas_pub_key }}"
+        password: "{{ atlas_private_key }}"
+        method: POST
+        body: "{{ lookup('ansible.builtin.file', 'search_index1.json') }}"
+        status_code: 200
+        body_format: json
+    - name: Create search index on replies collection
+      uri:
+        url: "https://cloud.mongodb.com/api/atlas/v1.0/groups/{{ project_id }}/clusters/{{ cluster_info.name }}/fts/indexes"
+        user: "{{ atlas_pub_key }}"
+        password: "{{ atlas_private_key }}"
+        method: POST
+        body: "{{ lookup('ansible.builtin.file', 'search_index2.json') }}"
+        status_code: 200
+        body_format: json

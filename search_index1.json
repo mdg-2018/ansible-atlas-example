@@ -1,0 +1,10 @@
+{
+    "analyzer": "lucene.standard",
+    "collectionName": "posts",
+    "database": "forum_db",
+    "name": "posts-idx",
+    "mappings":{
+        "dynamic":true
+    },
+    "searchAnalyzer": "lucene.standard"
+}

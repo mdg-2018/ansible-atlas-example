@@ -1,0 +1,10 @@
+{
+    "analyzer": "lucene.standard",
+    "collectionName": "replies",
+    "database": "forum_db",
+    "name": "replies-idx",
+    "mappings":{
+        "dynamic":true
+    },
+    "searchAnalyzer": "lucene.standard"
+}

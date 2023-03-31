@@ -1,0 +1,13 @@
+{
+    "clusterType": "REPLICASET",
+    "diskSizeGB": 10,
+    "mongoDBMajorVersion": "6.0",
+    "name": "example",
+    "providerSettings": {
+      "providerName": "AWS",
+      "encryptEBSVolume": true,
+      "instanceSizeName": "M10",
+      "regionName": "US_EAST_1"
+    },
+    "replicationFactor": 3
+  }
